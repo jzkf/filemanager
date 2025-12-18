@@ -15,6 +15,12 @@ class FileManagerModule extends \yii\base\Module
     public $controllerNamespace = 'jzkf\filemanager\controllers';
 
     /**
+     * 布局
+     * @var string
+     */
+    public $layout = '@app/views/layouts/main';
+
+    /**
      * 上传配置 - 最大文件大小（字节）
      * @var int
      */
