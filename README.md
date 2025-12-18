@@ -49,8 +49,6 @@
 
 ```
 vendor/jzkf/filemanager/
-├── config/
-│   └── filemanager.php          # 模块配置文件
 ├── controllers/
 │   └── DefaultController.php    # 控制器
 ├── docs/
@@ -140,46 +138,56 @@ composer update jzkf/filemanager
 'modules' => [
     'filemanager' => [
         'class' => 'jzkf\filemanager\FileManagerModule',
-        // 可选：自定义存储配置
-        'storage' => [
-            'default' => 'local',
-            'drivers' => [
-                'local' => [
-                    'basePath' => '@web/uploads',
-                    'baseUrl' => '',
-                ],
-            ],
+        
+        // 可选：自定义上传配置
+        'uploadMaxSize' => 10 * 1024 * 1024,  // 10MB
+        'uploadAllowedExtensions' => ['jpg', 'jpeg', 'png', 'gif', 'pdf', ...],
+        
+        // 可选：自定义图片处理配置
+        'uploadImageMaxDimensions' => [1920, 1920],
+        'uploadImageThumbnails' => [
+            'small' => [150, 150],
+            'medium' => [400, 400],
+            'large' => [720, 540],
         ],
+        'uploadImageQuality' => 85,
+        'uploadImageEnableWebp' => true,
+        'uploadImageWebpQuality' => 80,
+        
+        // 可选：自定义存储配置
+        'storageDefault' => env('FILE_STORAGE_DRIVER', 'local'),
+        'storageDrivers' => [
+            'local' => [
+                'basePath' => '@web/uploads',
+                'baseUrl' => '',
+            ],
+            // 其他存储驱动配置...
+        ],
+        
+        // 可选：自定义安全配置
+        'securityCheckMimeType' => true,
+        'securityAllowedMimeTypes' => [...],
+        'securityFileNameBlacklist' => ['..', '/', '\\', ...],
+        
+        // 可选：功能开关
+        'featuresEnableDeduplication' => true,
+        'featuresEnableCompression' => true,
+        'featuresEnableThumbnail' => true,
+        'featuresEnableWebp' => true,
+        
+        // 可选：分页配置
+        'paginationPageSize' => 20,
+        'paginationPickerPageSize' => 12,
+        
+        // 可选：清理配置
+        'cleanupEnableAutoCleanup' => true,
+        'cleanupUnusedFileDays' => 30,
+        'cleanupDeletedFileDays' => 7,
     ],
 ],
 ```
 
-### 3. 配置文件
-
-复制配置文件到项目配置目录（可选，如需自定义配置）：
-
-```bash
-# 复制默认配置文件
-cp vendor/jzkf/filemanager/config/filemanager.php common/config/filemanager.php
-```
-
-然后在配置文件中自定义设置：
-
-```php
-// common/config/filemanager.php
-return [
-    'upload' => [
-        'maxSize' => 10 * 1024 * 1024,  // 10MB
-        'allowedExtensions' => ['jpg', 'jpeg', 'png', 'gif', 'pdf', ...],
-    ],
-    'storage' => [
-        'default' => env('FILE_STORAGE_DRIVER', 'local'),
-        'drivers' => [
-            // 存储驱动配置...
-        ],
-    ],
-];
-```
+所有配置项都有默认值，可以根据需要选择性覆盖。
 
 ### 4. 运行迁移
 
@@ -278,40 +286,55 @@ $stats = $service->getStatistics();
 
 ### 上传配置
 
-在项目配置文件中（如 `common/config/filemanager.php`）配置：
+在模块配置中设置上传相关属性：
 
 ```php
-return [
-    'upload' => [
-        'maxSize' => 10 * 1024 * 1024,  // 10MB
-        'allowedExtensions' => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'rar'],
-        'image' => [
-            'maxDimensions' => [1920, 1920],
-            'thumbnails' => [
-                'large' => [720, 540],
-                'medium' => [480, 360],
-                'small' => [240, 180],
-            ],
-            'quality' => 85,
-            'webpQuality' => 80,
+'modules' => [
+    'filemanager' => [
+        'class' => 'jzkf\filemanager\FileManagerModule',
+        'uploadMaxSize' => 10 * 1024 * 1024,  // 10MB
+        'uploadAllowedExtensions' => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'rar'],
+        'uploadImageMaxDimensions' => [1920, 1920],
+        'uploadImageThumbnails' => [
+            'large' => [720, 540],
+            'medium' => [480, 360],
+            'small' => [240, 180],
         ],
+        'uploadImageQuality' => 85,
+        'uploadImageWebpQuality' => 80,
     ],
-    'security' => [
-        'checkMimeType' => true,
-        'allowedMimeTypes' => [
+],
+```
+
+### 安全配置
+
+```php
+'modules' => [
+    'filemanager' => [
+        'class' => 'jzkf\filemanager\FileManagerModule',
+        'securityCheckMimeType' => true,
+        'securityAllowedMimeTypes' => [
             'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp',
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ],
-        'fileNameBlacklist' => ['..', '/', '\\', "\0", '<', '>', ':', '"', '|', '?', '*'],
+        'securityFileNameBlacklist' => ['..', '/', '\\', "\0", '<', '>', ':', '"', '|', '?', '*'],
     ],
-    'features' => [
-        'enableDeduplication' => true,  // 启用文件去重
-        'enableThumbnail' => true,     // 启用缩略图生成
-        'enableWebp' => false,         // 启用 WebP 格式转换
+],
+```
+
+### 功能开关
+
+```php
+'modules' => [
+    'filemanager' => [
+        'class' => 'jzkf\filemanager\FileManagerModule',
+        'featuresEnableDeduplication' => true,  // 启用文件去重
+        'featuresEnableThumbnail' => true,     // 启用缩略图生成
+        'featuresEnableWebp' => false,         // 启用 WebP 格式转换
     ],
-];
+],
 ```
 
 ### 存储配置
@@ -319,35 +342,38 @@ return [
 支持本地存储、AWS S3、阿里云 OSS、腾讯云 COS 等多种存储驱动。
 
 ```php
-'storage' => [
-    'default' => env('FILE_STORAGE_DRIVER', 'local'),
-    'drivers' => [
-        'local' => [
-            'basePath' => '@web/uploads',
-            'baseUrl' => '',  // 留空则使用 frontend_url()
-        ],
-        's3' => [
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'bucket' => env('AWS_BUCKET'),
-            'cdnDomain' => env('AWS_CDN_DOMAIN'),
-        ],
-        'aliyun_oss' => [
-            'key' => env('ALIYUN_OSS_ACCESS_KEY_ID'),
-            'secret' => env('ALIYUN_OSS_ACCESS_KEY_SECRET'),
-            'region' => env('ALIYUN_OSS_REGION', 'oss-cn-chengdu'),
-            'bucket' => env('ALIYUN_OSS_BUCKET'),
-            'endpoint' => env('ALIYUN_OSS_ENDPOINT'),
-            'cdnDomain' => env('ALIYUN_OSS_CDN_DOMAIN'),
-        ],
-        'qcloud_cos' => [
-            'key' => env('QCLOUD_COS_ACCESS_KEY_ID'),
-            'secret' => env('QCLOUD_COS_SECRET_ACCESS_KEY'),
-            'region' => env('QCLOUD_COS_REGION', 'ap-chengdu'),
-            'bucket' => env('QCLOUD_COS_BUCKET'),
-            'endpoint' => env('QCLOUD_COS_ENDPOINT'),
-            'cdnDomain' => env('QCLOUD_COS_CDN_DOMAIN'),
+'modules' => [
+    'filemanager' => [
+        'class' => 'jzkf\filemanager\FileManagerModule',
+        'storageDefault' => env('FILE_STORAGE_DRIVER', 'local'),
+        'storageDrivers' => [
+            'local' => [
+                'basePath' => '@web/uploads',
+                'baseUrl' => '',  // 留空则使用 frontend_url()
+            ],
+            's3' => [
+                'key' => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+                'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+                'bucket' => env('AWS_BUCKET'),
+                'cdnDomain' => env('AWS_CDN_DOMAIN'),
+            ],
+            'aliyun_oss' => [
+                'key' => env('ALIYUN_OSS_ACCESS_KEY_ID'),
+                'secret' => env('ALIYUN_OSS_ACCESS_KEY_SECRET'),
+                'region' => env('ALIYUN_OSS_REGION', 'oss-cn-chengdu'),
+                'bucket' => env('ALIYUN_OSS_BUCKET'),
+                'endpoint' => env('ALIYUN_OSS_ENDPOINT'),
+                'cdnDomain' => env('ALIYUN_OSS_CDN_DOMAIN'),
+            ],
+            'qcloud_cos' => [
+                'key' => env('QCLOUD_COS_ACCESS_KEY_ID'),
+                'secret' => env('QCLOUD_COS_SECRET_ACCESS_KEY'),
+                'region' => env('QCLOUD_COS_REGION', 'ap-chengdu'),
+                'bucket' => env('QCLOUD_COS_BUCKET'),
+                'endpoint' => env('QCLOUD_COS_ENDPOINT'),
+                'cdnDomain' => env('QCLOUD_COS_CDN_DOMAIN'),
+            ],
         ],
     ],
 ],
