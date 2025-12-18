@@ -42,6 +42,6 @@
             },
         };
 
-        Toastify(Object.assign(baseOptions, options)).show_toast();
+        Toastify(Object.assign(baseOptions, options)).showToast();
     };
 })(window);
