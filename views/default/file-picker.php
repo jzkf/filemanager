@@ -417,7 +417,7 @@ $this->registerJs(
                         .removeClass('progress-bar-animated progress-bar-striped')
                         .addClass('bg-danger')
                         .css('width', '100%');
-                    showToast(response.message, 'error');
+                    show_toast(response.message, 'error');
                 }
             },
             error: function() {
@@ -425,7 +425,7 @@ $this->registerJs(
                     .removeClass('progress-bar-animated progress-bar-striped')
                     .addClass('bg-danger')
                     .css('width', '100%');
-                showToast('上传失败', 'error');
+                show_toast('上传失败', 'error');
             }
         });
     }

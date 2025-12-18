@@ -269,7 +269,7 @@ class FileUploadWidget extends Widget
             preview.html(renderPreview(fileData));
             
             // 显示成功提示
-            showToast('已选择文件: ' + fileData.name, 'success');
+            show_toast('已选择文件: ' + fileData.name, 'success');
             
             // 清除modal中的widget ID
             modal.data('current-widget-id', '');
@@ -383,13 +383,13 @@ class FileUploadWidget extends Widget
             contentType: false,
             success: function(response) {
                 if (response.success) {
-                    showToast(response.message, 'success');
+                    show_toast(response.message, 'success');
                     input.val(response.data.url).trigger('change');
                     widget.find('input[readonly]').val(response.data.url);
                     preview.html(renderPreview(response.data));
                     $(document).trigger('fileUploaded.{$id}', [response.data]);
                 } else {
-                    showToast(response.message, 'error');
+                    show_toast(response.message, 'error');
                 }
             },
             error: function(xhr, status, error) {
@@ -397,7 +397,7 @@ class FileUploadWidget extends Widget
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     message = xhr.responseJSON.message;
                 }
-                showToast(message, 'error');
+                show_toast(message, 'error');
             }
         });
     }
