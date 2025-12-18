@@ -91,10 +91,45 @@ vendor/jzkf/filemanager/
 
 ### 1. 安装
 
-通过 Composer 安装：
+#### 方式一：从 Packagist 安装（推荐，稳定版本）
 
 ```bash
 composer require jzkf/filemanager
+```
+
+> **注意**：如果遇到 "Could not find a version matching your minimum-stability" 错误，说明包尚未发布稳定版本。请查看 [安装指南](./INSTALL.md) 了解如何从 GitHub 安装或发布版本。
+
+#### 方式二：从 GitHub 安装（开发版本）
+
+如果包尚未发布到 Packagist，或需要使用最新开发版本：
+
+```bash
+# 方法 1：直接指定 GitHub 仓库
+composer require jzkf/filemanager:dev-master
+
+# 方法 2：在 composer.json 中添加仓库配置
+```
+
+在项目的 `composer.json` 中添加：
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/jzkf/filemanager.git"
+        }
+    ],
+    "require": {
+        "jzkf/filemanager": "dev-master"
+    }
+}
+```
+
+然后运行：
+
+```bash
+composer update jzkf/filemanager
 ```
 
 ### 2. 配置模块
@@ -386,10 +421,10 @@ $auth->add($fileManager);
 
 | 文档 | 说明 |
 |------|------|
+| [INSTALL.md](./INSTALL.md) | 安装指南（解决版本问题） |
 | [PRD.md](./docs/PRD.md) | 产品需求文档 |
 | [FileUploadWidget使用说明.md](./docs/FileUploadWidget使用说明.md) | Widget 详细使用文档 |
 | [文件选择器说明.md](./docs/文件选择器说明.md) | 文件选择器功能说明 |
-| [FlysystemIntegration.md](./docs/FlysystemIntegration.md) | Flysystem 集成使用文档 |
 | [模块优化建议.md](./docs/模块优化建议.md) | 全面的优化分析 |
 | [优化实施指南.md](./docs/优化实施指南.md) | 分步骤实施指南 |
 
@@ -531,9 +566,40 @@ Yii::setAlias('@jzkf/filemanager', '@vendor/jzkf/filemanager');
 
 ## 📦 安装
 
+### 从 Packagist 安装（稳定版本）
+
 ```bash
 composer require jzkf/filemanager
 ```
+
+### 从 GitHub 安装（开发版本）
+
+```bash
+# 方法 1：直接安装
+composer require jzkf/filemanager:dev-master
+
+# 方法 2：配置仓库后安装
+# 在 composer.json 中添加 repositories 配置（见上方说明）
+```
+
+### 发布版本到 Packagist
+
+如果你想发布新版本：
+
+1. **创建 Git 标签**：
+   ```bash
+   git tag -a v2.2.0 -m "Release version 2.2.0"
+   git push origin v2.2.0
+   ```
+
+2. **在 Packagist 注册包**：
+   - 访问 https://packagist.org
+   - 点击 "Submit"
+   - 输入仓库 URL: `https://github.com/jzkf/filemanager.git`
+   - Packagist 会自动检测标签并创建版本
+
+3. **更新包**：
+   - Packagist 会自动同步，或点击 "Update" 按钮手动更新
 
 ## ⚙️ 系统要求
 

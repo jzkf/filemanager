@@ -2,7 +2,7 @@
 
 use yii\jui\DatePicker;
 use jzkf\filemanager\models\File;
-use backend\grid\GridView;
+use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -143,7 +143,7 @@ JS
                         ]),
                     ],
                     [
-                        'class' => 'backend\grid\ActionColumn',
+                        'class' => 'yii\grid\ActionColumn',
                         'template' => '<div class="d-flex shrink-0 items-center gap-3 justify-end">{view}{delete}</div>',
                         'contentOptions' => [],
                         'urlCreator' => function ($action, File $model, $key, $index, $column) {
