@@ -1,6 +1,5 @@
 <?php
 
-use yii\jui\DatePicker;
 use jzkf\filemanager\models\File;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -97,27 +96,6 @@ $this->params['headerToolbar'][] = Html::button('<i class="ti ti-upload me-2"></
                 [
                     'attribute' => 'created_at',
                     'format' => 'datetime',
-                    'filter' => DatePicker::widget([
-                        'model' => $searchModel,
-                        'attribute' => 'created_at',
-                        'options' => [
-                            'class' => 'form-control',
-                            'placeholder' => '选择日期',
-                            'autocomplete' => 'off',
-                        ],
-                        'clientOptions' => [
-                            'changeMonth' => true,
-                            'changeYear' => true,
-                            'yearRange' => '-10:+0',
-                            'showButtonPanel' => true,
-                            'closeText' => '确定',
-                            'currentText' => '今天',
-                            'dateFormat' => 'yy-mm-dd',
-                            'monthNames' => ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
-                            'dayNames' => ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
-                            'dayNamesMin' => ['日', '一', '二', '三', '四', '五', '六'],
-                        ],
-                    ]),
                 ],
                 [
                     'class' => 'yii\grid\ActionColumn',
