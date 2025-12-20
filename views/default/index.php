@@ -21,28 +21,6 @@ $this->params['headerToolbar'][] = Html::button('<i class="ti ti-upload me-2"></
     'data-bs-toggle' => 'modal',
     'data-bs-target' => '#filemanagerModal',
 ]);
-$this->registerCss('
-.img-preview-wrap { width: 12rem;  height : 9rem; overflow:hidden;}
-.img-preview { width: 12rem; }
-');
-
-// 注册上传按钮的JavaScript
-$uploadUrl = Url::to(['/filemanager/default/upload-form']);
-$this->registerJs(
-    <<<JS
-    $('#btn-upload-file').on('click', function() {
-        var modal = $('#filemanagerModal');
-        modal.find('.modal-dialog').removeClass('modal-xl');
-        modal.find('.modal-title').text('上传文件');
-        modal.find('.modal-body').html('<div class="text-center"><div class="spinner-border" role="status"></div></div>');
-        modal.find('.modal-footer').addClass('d-none');
-        
-        $.get('$uploadUrl', function(data) {
-            modal.find('.modal-body').html(data);
-        });
-    });
-JS
-);
 ?>
 <?= $this->render('_modal') ?>
 <div class="file-index">
@@ -83,13 +61,15 @@ JS
         </div>
     </div>
 
-    <div class="card my-3">
-        <?php // echo $this->render('_search', ['model' => $searchModel]); 
-        ?>
+    <?php // echo $this->render('_search', ['model' => $searchModel]); 
+    ?>
+
+    <div class="border rounded">
         <div class="table-responsive">
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
                 'filterModel' => $searchModel,
+                'tableOptions' => ['class' => 'table table-hover align-middle'],
                 'columns' => [
                     'storage:raw',
                     [
@@ -103,7 +83,7 @@ JS
                         'attribute' => 'path',
                         'format' => 'raw',
                         'value' => function ($model) {
-                            return Html::tag('div', Html::img($model->base_url . $model->path, ['class' => 'img-thumbnail img-preview']), ['class' => 'img-preview-wrap']);
+                            return Html::tag('div', Html::img($model->base_url . $model->path, ['class' => 'img-preview']), ['class' => 'img-preview-wrap']);
                         }
                     ],
                     'mime_type',
@@ -156,3 +136,29 @@ JS
     </div>
 
 </div>
+
+<?php
+$this->registerCss('
+.img-preview-wrap { }
+.img-preview { width: 10rem; overflow:hidden; aspect-ratio: 4/3; object-fit: cover; }
+');
+
+// 注册上传按钮的JavaScript
+$uploadUrl = Url::to(['/filemanager/default/upload-form']);
+$this->registerJs(
+    <<<JS
+    $('#btn-upload-file').on('click', function() {
+        var modal = $('#filemanagerModal');
+        modal.find('.modal-dialog').removeClass('modal-xl');
+        modal.find('.modal-title').text('上传文件');
+        modal.find('.modal-body').html('<div class="text-center"><div class="spinner-border" role="status"></div></div>');
+        modal.find('.modal-footer').addClass('d-none');
+        
+        $.get('$uploadUrl', function(data) {
+            modal.find('.modal-body').html(data);
+        });
+    });
+JS
+);
+
+?>
