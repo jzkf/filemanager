@@ -537,4 +537,20 @@ class DefaultController extends \yii\web\Controller
             "message" => $data['error']
         ];
     }
+
+    /**
+     * UEditor 图片上传.
+     * @return array
+     */
+    public function actionUeditorUpload()
+    {
+        $data = $this->actionCkeUploadImage();
+        
+        return [
+            'uploaded' => $data['uploaded'],
+            'fileName' => $data['fileName'],
+            'url' => $data['url'],
+            'error' => $data['error'],
+        ];
+    }
 }

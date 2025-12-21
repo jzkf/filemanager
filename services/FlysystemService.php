@@ -124,9 +124,16 @@ class FlysystemService extends Component
     {
         $basePath = Yii::getAlias($config['basePath'] ?? '@web/uploads');
         
+        // 验证路径是否有效
+        if (empty($basePath)) {
+            throw new InvalidConfigException('存储路径 basePath 不能为空');
+        }
+        
         // 确保目录存在
         if (!is_dir($basePath)) {
-            mkdir($basePath, 0755, true);
+            if (!mkdir($basePath, 0755, true)) {
+                throw new InvalidConfigException("无法创建存储目录: {$basePath}");
+            }
         }
         
         return new LocalFilesystemAdapter($basePath);

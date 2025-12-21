@@ -88,9 +88,9 @@ class FileManagerModule extends \yii\base\Module
      *     's3' => [...],
      *     ...
      * ]
-     * @var array
+     * @var array|null
      */
-    public $storageDrivers = [];
+    public $storageDrivers = null;
 
     /**
      * 安全配置 - 是否检查 MIME 类型
@@ -298,7 +298,7 @@ class FileManagerModule extends \yii\base\Module
         return [
             // 本地存储
             'local' => [
-                'basePath' => '@web',
+                'basePath' => '@frontend/web',
                 'baseUrl' => '',
             ],
             
