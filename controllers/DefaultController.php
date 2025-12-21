@@ -6,6 +6,7 @@ use jzkf\filemanager\models\File;
 use jzkf\filemanager\models\form\UploadForm;
 use jzkf\filemanager\models\search\FileSearch;
 use jzkf\filemanager\services\FileService;
+use jzkf\filemanager\services\UploadService;
 use Yii;
 use yii\base\Exception;
 use yii\filters\VerbFilter;
@@ -25,6 +26,11 @@ class DefaultController extends \yii\web\Controller
      * @var FileService 文件服务
      */
     protected $fileService;
+    
+    /**
+     * @var UploadService 上传服务
+     */
+    protected $uploadService;
 
     /**
      * @inheritDoc
@@ -33,6 +39,8 @@ class DefaultController extends \yii\web\Controller
     {
         parent::init();
         $this->fileService = new FileService();
+        // 推荐：通过容器获取服务实例（支持依赖注入和测试）
+        $this->uploadService = Yii::$container->get(UploadService::class);
     }
 
     /**
@@ -369,8 +377,8 @@ class DefaultController extends \yii\web\Controller
                 throw new BadRequestHttpException('请选择要上传的文件');
             }
             
-            // 使用 Service 层处理上传
-            $file = $this->fileService->upload($model->imageFile);
+            // 使用 UploadService 实例方法处理上传（推荐方式）
+            $file = $this->uploadService->upload($model->imageFile);
             
             return [
                 'success' => true,
@@ -407,90 +415,23 @@ class DefaultController extends \yii\web\Controller
     }
 
     /**
-     * Ckeditor 图片上传.
-     * @return array|bool
-     */
-    public function actionCkeUploadImage()
-    {
-        $errorMessage = '';
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        $model = new UploadForm();
-        if (Yii::$app->request->isPost) {
-
-            // 兼容上传字段为file
-            $upload = UploadedFile::getInstanceByName('file');
-            if (!$upload) {
-                $upload = UploadedFile::getInstanceByName('upload');
-            }
-
-            if ($upload->error !== UPLOAD_ERR_OK) {
-                $max_upload = (int)(ini_get('upload_max_filesize'));
-                $max_post = (int)(ini_get('post_max_size'));
-                $memory_limit = (int)(ini_get('memory_limit'));
-                $upload_mb = min($max_upload, $max_post, $memory_limit);
-
-                // Handle the error based on the error code
-                switch ($upload->error) {
-                    case UPLOAD_ERR_INI_SIZE:
-                        $errorMessage = '上传文件超过了系统设置的最大上传（' . $upload_mb . 'm）.';
-                        break;
-                    case UPLOAD_ERR_FORM_SIZE:
-                        $errorMessage = '上传的文件超出了 HTML 表单中指定的 MAX_FILE_SIZE 指令.';
-                        break;
-                    case UPLOAD_ERR_PARTIAL:
-                        $errorMessage = '上传的文件仅部分上传.';
-                        break;
-                    case UPLOAD_ERR_NO_FILE:
-                        $errorMessage = '未上传任何文件.';
-                        break;
-                    case UPLOAD_ERR_NO_TMP_DIR:
-                        $errorMessage = '缺少临时文件夹.';
-                        break;
-                    case UPLOAD_ERR_CANT_WRITE:
-                        $errorMessage = '无法将文件写入磁盘.';
-                        break;
-                    case UPLOAD_ERR_EXTENSION:
-                        $errorMessage = '系统停止了文件上传.';
-                        break;
-                    default:
-                        $errorMessage = '未知上传错误.';
-                        break;
-                }
-
-                // Output or log the error message
-                Yii::error($errorMessage);
-                return ['uploaded' => 0, 'error' => $errorMessage];
-            }
-
-            $model->imageFile = $upload;
-
-            // 文件上传成功
-            if ($file = $model->upload()) {
-                return [
-                    'uploaded' => 1,
-                    'fileName' => $model->imageFile->name,
-                    'url' => frontend_url() . $file['file_path'],
-                    'size' => $file['size'],
-                    'type' => $file['type'],
-                    'error' => '上传成功！'
-                ];
-            }
-        }
-        return [
-            'uploaded' => 0,
-            'fileName' => $model->imageFile->name,
-            'url' => '',
-            'error' => $errorMessage ?? '上传错误，请联系网站管理员！'
-        ];
-    }
-
-    /**
      * 图片上传
      * @return array|false
      */
     public function actionWebUploader()
     {
-        $data = $this->actionCkeUploadImage();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        if (!Yii::$app->request->isPost) {
+            $data = [
+                'uploaded' => 0,
+                'fileName' => '',
+                'url' => '',
+                'error' => '请求方式错误'
+            ];
+        } else {
+            $data = $this->uploadService->uploadImage();
+        }
 
         return [
             'code' => !$data['uploaded'],
@@ -506,7 +447,18 @@ class DefaultController extends \yii\web\Controller
      */
     public function actionTinymceUpload()
     {
-        $data = $this->actionCkeUploadImage();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        if (!Yii::$app->request->isPost) {
+            $data = [
+                'uploaded' => 0,
+                'fileName' => '',
+                'url' => '',
+                'error' => '请求方式错误'
+            ];
+        } else {
+            $data = $this->uploadService->uploadImage();
+        }
 
         return [
             'location' => $data['url'],
@@ -520,7 +472,18 @@ class DefaultController extends \yii\web\Controller
      */
     public function actionDmFileUploader()
     {
-        $data = $this->actionCkeUploadImage();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        if (!Yii::$app->request->isPost) {
+            $data = [
+                'uploaded' => 0,
+                'fileName' => '',
+                'url' => '',
+                'error' => '请求方式错误'
+            ];
+        } else {
+            $data = $this->uploadService->uploadImage();
+        }
 
         if ($data['uploaded'] == 1) {
             return [
@@ -544,7 +507,18 @@ class DefaultController extends \yii\web\Controller
      */
     public function actionUeditorUpload()
     {
-        $data = $this->actionCkeUploadImage();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        if (!Yii::$app->request->isPost) {
+            $data = [
+                'uploaded' => 0,
+                'fileName' => '',
+                'url' => '',
+                'error' => '请求方式错误'
+            ];
+        } else {
+            $data = $this->uploadService->uploadImage();
+        }
         
         return [
             'uploaded' => $data['uploaded'],
